@@ -1,0 +1,22 @@
+{
+  "name": "affiliate-aggregator",
+  "version": "1.0.0",
+  "description": "Daily deal email aggregator for Amazon India and Flipkart",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "start": "node dist/index.js"
+  },
+  "keywords": ["affiliate", "deals", "amazon", "flipkart"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^26.0.1",
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.11",
+    "typescript": "^6.0.3"
+  }
+}
