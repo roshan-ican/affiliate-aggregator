@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
+import cron from 'node-cron';
 import { DealExtractor } from './src/extractor';
 import { AmazonDealScraper } from './src/scraper';
 import { GoogleSitesScraper } from './src/scraper/googlesites';
@@ -259,7 +260,51 @@ app.get('/api/email/deals', async (req: Request, res: Response) => {
  * Health check
  */
 app.get('/health', (_req: Request, res: Response) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    cronSchedule: process.env.CRON_SCHEDULE || '0 8 * * *',
+  });
+});
+
+/**
+ * Send the daily deals email (reusable function)
+ */
+async function sendDealsEmail(count: number = 10): Promise<void> {
+  console.log('[Cron] Starting daily deals email...');
+
+  const products = await scraper.scrapeTechDeals();
+  if (products.length === 0) {
+    console.warn('[Cron] No products scraped, skipping email');
+    return;
+  }
+
+  const affiliateLinks = linkGenerator.generateBatch(products);
+  const top = affiliateLinks.slice(0, count);
+
+  const now = new Date().toLocaleDateString('en-IN', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
+
+  const emailHtml = buildEmailHtml(top, now);
+  const recipient = process.env.EMAIL_RECIPIENT || 'btechfinds@gmail.com';
+
+  const info = await transporter.sendMail({
+    from: `"Smart Tech Deals" <${process.env.EMAIL_USER}>`,
+    to: recipient,
+    subject: `⚡ Today's Top ${count} Tech Deals — ${now}`,
+    html: emailHtml,
+  });
+
+  console.log(`[Cron] Email sent to ${recipient} | ${top.length} deals | ID: ${info.messageId}`);
+}
+
+// Schedule daily email (default: 8 AM IST)
+const CRON_SCHEDULE = process.env.CRON_SCHEDULE || '0 8 * * *';
+cron.schedule(CRON_SCHEDULE, () => {
+  sendDealsEmail(10).catch(err => console.error('[Cron] Failed:', err.message));
+}, {
+  timezone: process.env.TIMEZONE || 'Asia/Kolkata',
 });
 
 const PORT = process.env.PORT || 3000;
@@ -269,4 +314,5 @@ app.listen(PORT, () => {
   console.log(`[API] GET  http://localhost:${PORT}/api/offers/smarttech`);
   console.log(`[API] GET  http://localhost:${PORT}/api/email/deals`);
   console.log(`[API] POST http://localhost:${PORT}/api/extract`);
+  console.log(`[API] Cron scheduled: "${CRON_SCHEDULE}" (${process.env.TIMEZONE || 'Asia/Kolkata'})`);
 });
