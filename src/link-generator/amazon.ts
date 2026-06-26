@@ -12,7 +12,8 @@ export class AmazonLinkGenerator {
     this.config = config;
   }
 
-  private extractASIN(url: string): string | null {
+  private extractASIN(url: string | null | undefined): string | null {
+    if (!url) return null;
     const asinRegex = /\/dp\/([A-Z0-9]{10})/i;
     const match = url.match(asinRegex);
     return match ? match[1] : null;

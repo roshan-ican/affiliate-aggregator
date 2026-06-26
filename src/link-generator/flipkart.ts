@@ -12,13 +12,15 @@ export class FlipkartLinkGenerator {
     this.config = config;
   }
 
-  private extractProductId(url: string): string | null {
+  private extractProductId(url: string | null | undefined): string | null {
+    if (!url) return null;
     const idRegex = /\/p\/([A-Z0-9]+)/i;
     const match = url.match(idRegex);
     return match ? match[1] : null;
   }
 
-  private extractProductPath(url: string): string | null {
+  private extractProductPath(url: string | null | undefined): string | null {
+    if (!url) return null;
     try {
       const urlObj = new URL(url);
       return urlObj.origin + urlObj.pathname;

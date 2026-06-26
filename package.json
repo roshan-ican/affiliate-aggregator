@@ -7,16 +7,33 @@
     "build": "tsc",
     "test": "jest",
     "test:watch": "jest --watch",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "dev": "ts-node api.ts"
   },
-  "keywords": ["affiliate", "deals", "amazon", "flipkart"],
+  "keywords": [
+    "affiliate",
+    "deals",
+    "amazon",
+    "flipkart"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/node": "^26.0.1",
+    "@types/nodemailer": "^8.0.1",
     "jest": "^30.4.2",
     "ts-jest": "^29.4.11",
+    "ts-node": "^10.9.2",
     "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "axios": "^1.18.1",
+    "cheerio": "^1.2.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "groq-sdk": "^0.15.0",
+    "jsdom": "^29.1.1",
+    "nodemailer": "^6.9.16"
   }
 }
